@@ -31,7 +31,7 @@ Dieses Projekt ist als internes Google Workspace Add-on konzipiert und kann von 
 5. Add-on **VOD-Tabellen Bereiniger** installieren.
 ![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-03.png)
 
-> Direkt nach der Installation ist ggf. einmalig ein Refresh der Tabelle über den Browser notwendig. 
+> **Direkt nach der Installation ist ggf. einmalig ein Refresh der Tabelle über den Browser notwendig.**
 
 ## Benutzung
 
