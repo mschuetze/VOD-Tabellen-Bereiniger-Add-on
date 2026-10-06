@@ -20,42 +20,20 @@ Dieses Google Apps Script-Add-on bereinigt und strukturiert automatisch Datums-T
 
 ## Installation
 
-1. Öffne dein Google Sheets-Dokument.
-2. Gehe auf `Erweiterungen` → `Apps Script`.
-3. Kopiere den Inhalt der Datei `vod-tabellenbereiniger.gs` in den Script-Editor.
-4. Speichere das Projekt mit einem aussagekräftigen Namen, z. B. `VOD Tabellen Bereiniger`.
-5. Autorisiere die benötigten Google Sheets-Berechtigungen, wenn du dazu aufgefordert wirst.
-6. Wenn das Projekt als Add-on genutzt werden soll, deploye es als Google Workspace Add-on bzw. Editor-Add-on.
-7. Lade die Tabelle danach neu, damit das Menü unter `Erweiterungen` angezeigt wird.
+Dieses Projekt ist als internes Google Workspace Add-on konzipiert und kann von jedem S&S-Mitarbeiter installiert werden.
 
-Hinweis: Das Menü wird beim Öffnen der Tabelle automatisch erzeugt. Wenn das Add-on nicht sofort erscheint, prüfe den Script-Editor und aktiviere das Projekt erneut oder lade die Datei neu.
+1. Öffne eine beliebige Google-Tabelle.
+2. Öffne das Menü `Erweiterungen` -> `Add-ons` -> `Add-ons aufrufen`
+3. Im Popup auf das Hamburger Menü klicken (siehe Abb. 01)
+![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-01.png)
+4. Punkt `Interne Apps` auswählen.
+5. Add-on **VOD-Tabellen Bereiniger** installieren.
+
+> Direkt nach der Installation ist ggf. einmalig ein Refresh der Tabelle über den Browser notwendig. 
 
 ## Benutzung
 
-1. Öffne die Tabelle, in der die Datumsblätter bereinigt werden sollen.
-2. Gehe zu `Erweiterungen`.
-3. Wähle den Menüpunk `⚡ Nur Datum-Blätter verarbeiten`.
-4. Das Script verarbeitet automatisch alle sichtbaren Blätter mit einem Datum im Namen.
-
-Das Ergebnis umfasst:
-
-- bereinigte Tabellenstrukturen ohne überflüssige Leerbereiche
-- korrekte Uhrzeitformatierung für Datums- und Zeitspalten
-- ausgeblendete nicht benötigte Spalten
-- zusätzliche VOD-/Kommentar-/Layout-/PDF-Überschriften mit Validierung
-
-Falls keine sichtbaren Datumsblätter gefunden werden, zeigt das Script eine Benachrichtigung an.
-
-## Hinweise zur Funktionsweise
-
-Das Hauptprogramm wird durch die Funktion `tabelleBereinigenUndErweitern()` ausgelöst. Diese Funktion:
-
-- prüft alle sichtbaren Tabellenblätter
-- erkennt Dateinamen mit Datumsangaben über den Namen des Blattes
-- bereinigt die Daten in-memory
-- fügt die Zusatzspalten hinzu
-- setzt Validierungen und Formatierungen
-- meldet am Ende den Abschluss per Benachrichtigung bzw. Debug-Report
-
-Damit eignet sich das Add-on für den schnellen Einsatz in strukturierten VOD-Tabellen, bei denen mehrere Datumsblätter regelmäßig aufbereitet werden müssen.
+1. Öffne die zu bereinigende Tabelle.
+2. Öffne die Seitenleiste rechts.
+3. Ein Klick auf das Tabellen-Icon startet das Add-on.
 
