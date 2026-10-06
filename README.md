@@ -24,10 +24,12 @@ Dieses Projekt ist als internes Google Workspace Add-on konzipiert und kann von 
 
 1. Öffne eine beliebige Google-Tabelle.
 2. Öffne das Menü `Erweiterungen` -> `Add-ons` -> `Add-ons aufrufen`
-3. Im Popup auf das Hamburger Menü klicken (siehe Abb. 01)
+3. Im Popup auf das Hamburger Menü klicken
 ![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-01.png)
 4. Punkt `Interne Apps` auswählen.
+![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-02.png)
 5. Add-on **VOD-Tabellen Bereiniger** installieren.
+![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-03.png)
 
 > Direkt nach der Installation ist ggf. einmalig ein Refresh der Tabelle über den Browser notwendig. 
 
