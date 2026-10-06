@@ -36,6 +36,7 @@ Dieses Projekt ist als internes Google Workspace Add-on konzipiert und kann von 
 ## Benutzung
 
 1. Öffne die zu bereinigende Tabelle.
-2. Öffne die Seitenleiste rechts.
+2. Öffne die Seitenleiste rechts, falls ausgeblendet.
+![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-04.png)
 3. Ein Klick auf das Tabellen-Icon startet das Add-on.
-
+![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-05.png)
