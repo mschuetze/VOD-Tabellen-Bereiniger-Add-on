@@ -16,7 +16,7 @@
   - `PDF in Redsys?`
 - legt für die neuen Felder gültige Dropdown-Listen, Standardwerte und bedingte Formatierung an
 - setzt die Arbeitsmappe auf die Sprache `en_US` für konsistente Formeln und Berechnungen
-- erstellt eine Verknüpfung der aktuellen Tabelle im konfigurierten Google-Drive-Zielordner "Konferenz Slides"
+- erstellt eine Verknüpfung der aktuellen Tabelle im Google-Drive-Ordner "Konferenz Slides"
 
 ## Installation
 
