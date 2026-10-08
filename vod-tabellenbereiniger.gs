@@ -1,7 +1,11 @@
 // ============================================================================
-// DEBUG SWITCH: Auf true setzen für Performance-Logs im Editor / Pop-up.
+// KONFIGURATION & DEBUG SWITCH
 // ============================================================================
 const DEBUG = true;
+
+// Trage hier die ID deines Zielordners in Google Drive ein
+// (aus der URL: https://drive.google.com/drive/folders/DEINE_ORDNER_ID)
+const ZIEL_ORDNER_ID = "1eANhSM5Nn4e84WhD31lB7mm31VH_9kJM";
 
 /**
  * Erstellt den Menüeintrag unter "Erweiterungen" beim Öffnen der Tabelle.
@@ -59,7 +63,7 @@ class ExecutionTimer {
     const totalDuration = now - this.startTime;
     this.lastTime = now;
 
-    const logEntry = `⏱️️ [${duration} ms | Gesamt: ${totalDuration} ms] -> ${stepName}`;
+    const logEntry = `⏱ [${duration} ms | Gesamt: ${totalDuration} ms] -> ${stepName}`;
     this.logs.push(logEntry);
     Logger.log(logEntry);
 
@@ -75,6 +79,34 @@ class ExecutionTimer {
   getSummary() {
     const totalTime = Date.now() - this.startTime;
     return `--- DEBUG PERFORMANCE REPORT (Gesamtzeit: ${totalTime} ms) ---\n` + this.logs.join("\n");
+  }
+}
+
+/**
+ * Erstellt eine Verknüpfung der aktuellen Tabelle im angegebenen Zielordner.
+ */
+function erzeugeVerknuepfungInOrdner(fileId, folderId, timer) {
+  if (!folderId || folderId === "DEINE_ORDNER_ID_HIER") {
+    timer.logStep("Verknüpfung übersprungen: Keine ZIEL_ORDNER_ID konfiguriert");
+    return;
+  }
+
+  try {
+    const targetFolder = DriveApp.getFolderById(folderId);
+    const currentFile = DriveApp.getFileById(fileId);
+
+    // Prüfen, ob bereits eine Verknüpfung im Zielordner mit gleichem Namen existiert
+    const existingShortcuts = targetFolder.getFilesByName(currentFile.getName());
+    if (existingShortcuts.hasNext()) {
+      timer.logStep(`Verknüpfung existiert bereits in Ordner: "${targetFolder.getName()}"`);
+      return;
+    }
+
+    // Shortcut (Verknüpfung) im Zielordner anlegen
+    targetFolder.createShortcut(fileId);
+    timer.logStep(`Verknüpfung erfolgreich in Ordner "${targetFolder.getName()}" erstellt`);
+  } catch (err) {
+    timer.logStep(`Fehler beim Erstellen der Verknüpfung: ${err.message}`);
   }
 }
 
@@ -308,6 +340,9 @@ function tabelleBereinigenUndErweitern() {
     }
   });
 
+  // 9. Automatisch Verknüpfung im Ziel-Ordner in Google Drive anlegen
+  erzeugeVerknuepfungInOrdner(ss.getId(), ZIEL_ORDNER_ID, timer);
+
   const report = timer.getSummary();
 
   if (DEBUG) {
@@ -320,7 +355,7 @@ function tabelleBereinigenUndErweitern() {
   return CardService.newActionResponseBuilder()
     .setNotification(
       CardService.newNotification()
-        .setText(`${dateSheets.length} Datums-Blätter erfolgreich bereinigt & formatiert!`)
+        .setText(`${dateSheets.length} Datums-Blätter erfolgreich bereinigt, formatiert & verknüpft!`)
     )
     .build();
 }
@@ -336,7 +371,7 @@ function purgeAllEmptyRowsAndColsInMemory(sheet, timer) {
 
   const rawValues = sheet.getRange(1, 1, maxRows, maxCols).getValues();
 
-  // 1. NEU: Nur Blöcke von >= 2 aufeinanderfolgenden leeren Zeilen herausfiltern
+  // 1. Nur Blöcke von >= 2 aufeinanderfolgenden leeren Zeilen herausfiltern
   const filteredRows = [];
   let pendingEmptyRows = [];
 
@@ -356,7 +391,6 @@ function purgeAllEmptyRowsAndColsInMemory(sheet, timer) {
     }
   }
 
-  // Am Ende des Tabellenblatts: einzelne Leerzeilen ebenfalls verwerfen
   if (filteredRows.length === 0) return;
 
   // 2. Indexe aller nicht-leeren Spalten ermitteln
