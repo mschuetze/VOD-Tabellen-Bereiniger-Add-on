@@ -1,7 +1,7 @@
 // ============================================================================
 // KONFIGURATION & DEBUG SWITCH
 // ============================================================================
-const DEBUG = true;
+const DEBUG = false;
 
 // Trage hier die ID deines Zielordners in Google Drive ein
 // (aus der URL: https://drive.google.com/drive/folders/DEINE_ORDNER_ID)
@@ -94,19 +94,26 @@ function erzeugeVerknuepfungInOrdner(fileId, folderId, timer) {
   try {
     const targetFolder = DriveApp.getFolderById(folderId);
     const currentFile = DriveApp.getFileById(fileId);
+    const files = targetFolder.getFiles();
 
-    // Prüfen, ob bereits eine Verknüpfung im Zielordner mit gleichem Namen existiert
-    const existingShortcuts = targetFolder.getFilesByName(currentFile.getName());
-    if (existingShortcuts.hasNext()) {
-      timer.logStep(`Verknüpfung existiert bereits in Ordner: "${targetFolder.getName()}"`);
-      return;
+    // Nur eine Verknüpfung auf genau diese Tabelle gilt als bereits vorhanden.
+    while (files.hasNext()) {
+      const file = files.next();
+      if (
+        file.getMimeType() === "application/vnd.google-apps.shortcut" &&
+        file.getTargetId() === fileId
+      ) {
+        timer.logStep(`Verknüpfung für "${currentFile.getName()}" existiert bereits in Ordner "${targetFolder.getName()}"`);
+        return;
+      }
     }
 
-    // Shortcut (Verknüpfung) im Zielordner anlegen
     targetFolder.createShortcut(fileId);
     timer.logStep(`Verknüpfung erfolgreich in Ordner "${targetFolder.getName()}" erstellt`);
   } catch (err) {
-    timer.logStep(`Fehler beim Erstellen der Verknüpfung: ${err.message}`);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    timer.logStep(`Fehler beim Erstellen der Verknüpfung in Ordner "${folderId}": ${errorMessage}`);
+    throw err;
   }
 }
 
@@ -149,26 +156,57 @@ function shouldHideColumn(rawHeaderText, normalizedHeader, exactListNormalized, 
 }
 
 /**
- * Führt die vollständige Bereinigung für ALLE sichtbaren Datums-Blätter aus.
+ * Fragt den Verarbeitungsumfang ab und bereinigt passende Datums-Blätter.
  */
 function tabelleBereinigenUndErweitern() {
+  const ui = SpreadsheetApp.getUi();
+  const auswahl = ui.alert(
+    "Tabellenblätter auswählen",
+    "Sollen die Änderungen auf alle passenden Tabellenblätter angewandt werden?\n\n" +
+      "Ja: alle passenden Tabellenblätter\n" +
+      "Nein: nur das aktuelle Tabellenblatt\n" +
+      "Abbrechen: keine Änderungen",
+    ui.ButtonSet.YES_NO_CANCEL
+  );
+
+  if (auswahl === ui.Button.CANCEL || auswahl === ui.Button.CLOSE) {
+    return;
+  }
+
+  const alleTabellenblaetterBearbeiten = auswahl === ui.Button.YES;
   const timer = new ExecutionTimer(DEBUG);
   timer.logStep("Start der Ausführung");
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  
-  // 0. Ländereinstellung / Sprache der Datei auf "Vereinigte Staaten" (en_US) setzen
-  ss.setSpreadsheetLocale('en_US');
-  timer.logStep("Sprache auf en_US gesetzt");
-
   const sheets = ss.getSheets();
-  
-  // Filtert nur sichtbare Blätter, die ein Datum im Namen tragen
-  const dateSheets = sheets.filter(s => !s.isSheetHidden() && isDateSheetName(s.getName()));
-  timer.logStep(`${dateSheets.length} von ${sheets.length} Blättern als Datums-Blätter identifiziert`);
+  const aktiveTabelle = ss.getActiveSheet();
+
+  // Filtert nur sichtbare Blätter, die ein Datum im Namen tragen.
+  const passendeTabellenblaetter = sheets.filter(
+    sheet => !sheet.isSheetHidden() && isDateSheetName(sheet.getName())
+  );
+  const dateSheets = alleTabellenblaetterBearbeiten
+    ? passendeTabellenblaetter
+    : passendeTabellenblaetter.filter(sheet => sheet.getSheetId() === aktiveTabelle.getSheetId());
+
+  if (alleTabellenblaetterBearbeiten) {
+    // Die Spracheinstellung betrifft die gesamte Arbeitsmappe.
+    ss.setSpreadsheetLocale('en_US');
+    timer.logStep("Sprache auf en_US gesetzt");
+  }
+
+  timer.logStep(
+    alleTabellenblaetterBearbeiten
+      ? `${dateSheets.length} von ${sheets.length} Blättern als Datums-Blätter identifiziert`
+      : `Aktives Tabellenblatt "${aktiveTabelle.getName()}" für die Verarbeitung ausgewählt`
+  );
 
   if (dateSheets.length === 0) {
-    SpreadsheetApp.getUi().alert("Es wurden keine sichtbaren Tabellenblätter mit einem Datum im Namen gefunden.");
+    ui.alert(
+      alleTabellenblaetterBearbeiten
+        ? "Es wurden keine sichtbaren Tabellenblätter mit einem Datum im Namen gefunden."
+        : "Das aktuelle Tabellenblatt ist kein sichtbares Tabellenblatt mit einem Datum im Namen."
+    );
     return;
   }
 
@@ -340,8 +378,10 @@ function tabelleBereinigenUndErweitern() {
     }
   });
 
-  // 9. Automatisch Verknüpfung im Ziel-Ordner in Google Drive anlegen
-  erzeugeVerknuepfungInOrdner(ss.getId(), ZIEL_ORDNER_ID, timer);
+  // Die Verknüpfung ist eine arbeitsmappenweite Aktion und gehört zur Verarbeitung aller Blätter.
+  if (alleTabellenblaetterBearbeiten) {
+    erzeugeVerknuepfungInOrdner(ss.getId(), ZIEL_ORDNER_ID, timer);
+  }
 
   const report = timer.getSummary();
 
@@ -355,7 +395,11 @@ function tabelleBereinigenUndErweitern() {
   return CardService.newActionResponseBuilder()
     .setNotification(
       CardService.newNotification()
-        .setText(`${dateSheets.length} Datums-Blätter erfolgreich bereinigt, formatiert & verknüpft!`)
+        .setText(
+          alleTabellenblaetterBearbeiten
+            ? `${dateSheets.length} Datums-Blätter erfolgreich bereinigt, formatiert & verknüpft!`
+            : `Das aktuelle Tabellenblatt "${aktiveTabelle.getName()}" wurde erfolgreich bereinigt und formatiert!`
+        )
     )
     .build();
 }

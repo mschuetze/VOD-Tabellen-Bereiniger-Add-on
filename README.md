@@ -41,4 +41,4 @@ Dieses Projekt ist als internes Google Workspace Add-on konzipiert und kann von 
 3. Klicke auf das Tabellen-Icon 
 ![alt text](https://github.com/mschuetze/VOD-Tabellen-Bereiniger-Add-on/blob/main/Bilder/vod-05.png)
 
-Das Add-on verarbeitet anschließend automatisch alle sichtbaren Datumsblätter der Datei und ergänzt die vorbereiteten Standardfelder für die spätere VOD-/PDF-Bearbeitung.
+Beim Start wählst du, ob das Add-on alle passenden sichtbaren Datumsblätter der Datei oder nur das aktuelle Tabellenblatt bearbeiten soll. Für „nur dieses“ muss das aktive Blatt sichtbar sein und ein Datum im Namen enthalten. Bei „alle“ ergänzt das Add-on die vorbereiteten Standardfelder für die spätere VOD-/PDF-Bearbeitung auf allen passenden Blättern.
